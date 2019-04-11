@@ -51,6 +51,8 @@ def read_directory_json_to_dict(directories, configtypename="Config File", stder
                     filepath = os.path.join(directory, file)
                     if os.path.isfile(filepath):
                         filesprocess.append(filepath)
+        else:
+            stderr(stderrname + directory)
 
     for filepath in filesprocess:
 
