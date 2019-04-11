@@ -5,7 +5,7 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 from .gifsearch import *
 
 
-@module.commands('gif')
+@module.commands('gifb')
 def gif_trigger(bot, trigger):
     triggerargs = sopel_triggerargs(bot, trigger)
     if triggerargs == []:
