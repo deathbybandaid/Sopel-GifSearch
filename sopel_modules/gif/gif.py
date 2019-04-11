@@ -75,8 +75,8 @@ def read_directory_json_to_dict(directories, configtypename="Config File", stder
             fileopenfail += 1
 
     if filecount:
-        stderr(stderrname + '\n\nRegistered %d %s files,' % (filecount, configtypename))
-        stderr(stderrname + '%d %s files failed to load\n\n' % (fileopenfail, configtypename))
+        stderr(stderrname + 'Registered %d %s files,' % (filecount, configtypename))
+        stderr(stderrname + '%d %s files failed to load' % (fileopenfail, configtypename))
     else:
         stderr(stderrname + "Warning: Couldn't load any %s files" % (configtypename))
 
