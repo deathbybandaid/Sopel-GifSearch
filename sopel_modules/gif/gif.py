@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 
 from sopel import module
 from sopel.tools import stderr
+from sopel.config.types import StaticSection, ValidatedAttribute
 
 try:
     from sopel_modules.botevents.botevents import *
@@ -15,18 +16,35 @@ import os
 import codecs
 
 
+class GifAPISection(StaticSection):
+    apikey = ValidatedAttribute('apikey', default=None)
+
+
 def configure(config):
-    pass
+    moduledir = os.path.dirname(os.path.abspath(__file__))
+    api_dir = os.path.join(moduledir, 'gifapi')
+    valid_gif_api_dict = read_directory_json_to_dict([api_dir], "Gif API", "[Sopel-GifSearch] ")
+
+    for gif_api in valid_gif_api_dict.keys():
+        config.define_section(gif_api, GifAPISection, validate=False)
+        gif_api_config = eval("config." + gif_api)
+        gif_api_config.configure_setting('apikey', 'GIF API Client ID')
 
 
 def setup(bot):
     if "Sopel-GifSearch" not in bot.memory:
         stderr("[Sopel-GifSearch] Starting Setup Procedure")
-        bot.memory["Sopel-GifSearch"] = {"cache": {}}
+        bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": []}
 
         moduledir = os.path.dirname(os.path.abspath(__file__))
         api_dir = os.path.join(moduledir, 'gifapi')
-        configs_dict = read_directory_json_to_dict([api_dir], "Gif API", "[Sopel-GifSearch] ")
+        valid_gif_api_dict = read_directory_json_to_dict([api_dir], "Gif API", "[Sopel-GifSearch] ")
+
+        for gif_api in valid_gif_api_dict.keys():
+            bot.config.define_section(gif_api, GifAPISection, validate=False)
+            apikey = eval("bot.config." + gif_api + ".apikey")
+            if apikey:
+                valid_gif_api_dict[gif_api]["apikey"] = apikey
 
     if botevents_installed:
         set_bot_event(bot, "gifsearch")
@@ -71,6 +89,9 @@ def read_directory_json_to_dict(directories, configtypename="Config File", stder
 
         if filereadgood and isinstance(dict_from_file, dict):
             filecount += 1
+            slashsplit = str(filepath).split("/")
+            filename = slashsplit[-1]
+            configs_dict[filename] = dict_from_file
         else:
             fileopenfail += 1
 
