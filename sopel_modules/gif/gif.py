@@ -62,8 +62,36 @@ def setup(bot):
 
 
 @module.commands('gif')
-def hello_world(bot, trigger):
-    bot.osd(getGif(bot, "test"))
+def gif_trigger(bot, trigger):
+    triggerargs = sopel_triggerargs(bot, trigger)
+    if triggerargs == []:
+        return bot.osd("Please present a query to search.")
+
+    query = spicemanip.main(trigger.args[1], 0)
+    searchapis = bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys()
+    searchdict = {"query": query, "gifsearch": searchapis}
+
+    gifdict = getGif(bot, searchdict)
+
+    if gifdict["error"]:
+        bot.osd(gifdict["error"])
+    else:
+        bot.osd(str(gifdict['gifapi'].title() + " Result (" + str(query) + " #" + str(gifdict["returnnum"]) + "): " + str(gifdict["returnurl"])))
+
+
+def sopel_triggerargs(bot, trigger, command_type='module_command'):
+    triggerargs = []
+
+    if len(trigger.args) > 1:
+        triggerargs = spicemanip.main(trigger.args[1], 'create')
+    triggerargs = spicemanip.main(triggerargs, 'create')
+
+    if command_type in ['module_command']:
+        triggerargs = spicemanip.main(triggerargs, '2+', 'list')
+    elif command_type in ['nickname_command']:
+        triggerargs = spicemanip.main(triggerargs, '3+', 'list')
+
+    return triggerargs
 
 
 def getGif(bot, searchdict):
