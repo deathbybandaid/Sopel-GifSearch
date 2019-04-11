@@ -45,10 +45,12 @@ def read_directory_json_to_dict(directories, configtypename="Config File", stder
     configs_dict = {}
     filesprocess, fileopenfail, filecount = [], 0, 0
     for directory in directories:
-        for file in os.listdir(directory):
-            filepath = os.path.join(directory, file)
-            if os.path.isfile(filepath):
-                filesprocess.append(filepath)
+        if os.path.exists(directory) and os.path.isdir(directory):
+            if len(os.listdir(directory)) > 0:
+                for file in os.listdir(directory):
+                    filepath = os.path.join(directory, file)
+                    if os.path.isfile(filepath):
+                        filesprocess.append(filepath)
 
     for filepath in filesprocess:
 
