@@ -11,9 +11,19 @@ try:
     botevents_installed = True
 except ImportError:
     botevents_installed = False
+import spicemanip
 
 import os
 import codecs
+import urllib
+import requests
+import json
+from fake_useragent import UserAgent
+import random
+
+# user agent and header
+ua = UserAgent()
+header = {'User-Agent': str(ua.chrome)}
 
 
 class GifAPISection(StaticSection):
@@ -34,7 +44,7 @@ def configure(config):
 def setup(bot):
     if "Sopel-GifSearch" not in bot.memory:
         stderr("[Sopel-GifSearch] Starting Setup Procedure")
-        bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": []}
+        bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": [], 'valid_gif_api_dict': {}}
 
         moduledir = os.path.dirname(os.path.abspath(__file__))
         api_dir = os.path.join(moduledir, 'gifapi')
@@ -45,6 +55,7 @@ def setup(bot):
             apikey = eval("bot.config." + gif_api + ".apikey")
             if apikey:
                 valid_gif_api_dict[gif_api]["apikey"] = apikey
+            bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
     if botevents_installed:
         set_bot_event(bot, "gifsearch")
@@ -52,7 +63,165 @@ def setup(bot):
 
 @module.commands('gif')
 def hello_world(bot, trigger):
-    bot.say('Hello, world!')
+    bot.osd(getGif(bot, "test"))
+
+
+def getGif(bot, searchdict):
+
+    # list of defaults
+    query_defaults = {
+                    "query": None,
+                    "searchnum": 'random',
+                    "gifsearch": bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys(),
+                    "gifsearchremove": ['gifme'],
+                    "searchlimit": 'default',
+                    "nsfw": False,
+                    }
+
+    # set defaults if they don't exist
+    for key in query_defaults:
+        if key not in searchdict.keys():
+            searchdict[key] = query_defaults[key]
+            if key == "gifsearch":
+                for remx in query_defaults["gifsearchremove"]:
+                    searchdict["gifsearch"].remove(remx)
+
+    # Replace spaces in search query
+    if not searchdict["query"]:
+        return {"error": 'No Query to Search'}
+    # searchdict["searchquery"] = searchdict["query"].replace(' ', '%20')
+    searchdict["searchquery"] = urllib.request.pathname2url(searchdict["query"])
+
+    # set api usage
+    if not isinstance(searchdict['gifsearch'], list):
+        if str(searchdict['gifsearch']) in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
+            searchdict['gifsearch'] = [searchdict['gifsearch']]
+        else:
+            searchdict['gifsearch'] = bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys()
+    else:
+        for apis in searchdict['gifsearch']:
+            if apis not in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
+                searchdict['gifsearch'].remove(apis)
+
+    # Verify search limit
+    if searchdict['searchlimit'] == 'default' or not isinstance(searchdict['searchlimit'], int):
+        searchdict['searchlimit'] = 50
+
+    # Random handling for searchnum
+    if searchdict["searchnum"] == 'random':
+        searchdict["searchnum"] = random.randint(0, searchdict['searchlimit'])
+
+    # Make sure there is a valid input of query and search number
+    if not searchdict["query"]:
+        return {"error": 'No Query to Search'}
+
+    if not str(searchdict["searchnum"]).isdigit():
+        return {"error": 'No Search Number or Random Specified'}
+
+    gifapiresults = []
+    for currentapi in searchdict['gifsearch']:
+
+        # url base
+        url = str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['url'])
+        # query
+        url += str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['query']) + str(searchdict["searchquery"])
+        # limit
+        url += str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['limit']) + str(searchdict["searchlimit"])
+        # nsfw search?
+        if searchdict['nsfw']:
+            url += str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['nsfw'])
+        else:
+            url += str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['sfw'])
+        # api key
+        url += str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['key']) + str(bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['apikey'])
+
+        if currentapi not in bot.memory["Sopel-GifSearch"]['cache'].keys():
+            bot.memory["Sopel-GifSearch"]['cache'][currentapi] = dict()
+
+        if str(searchdict["searchquery"]) not in bot.memory["Sopel-GifSearch"]['cache'][currentapi].keys():
+            bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])] = []
+
+        if bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])] == []:
+
+            try:
+                page = requests.get(url, headers=header)
+            except Exception as e:
+                page = None
+
+            if page and not str(page.status_code).startswith(tuple(["4", "5"])):
+
+                data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+
+                results = data[bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['results']]
+                resultsarray = []
+                for result in results:
+                    appendresult = False
+                    cururl = result[bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][currentapi]['cururl']]
+                    slashsplit = str(cururl).split("/")
+                    fileextension = slashsplit[-1]
+                    if not fileextension or fileextension == '':
+                        appendresult = True
+                    elif str(fileextension).endswith(".gif"):
+                        appendresult = True
+                    elif "." not in str(fileextension):
+                        appendresult = True
+                    if appendresult:
+                        resultsarray.append(cururl)
+
+                # make sure there are results
+                if resultsarray != []:
+
+                    # Create Temp dict for every result
+                    tempresultnum = 0
+                    for tempresult in resultsarray:
+                        if tempresult not in bot.memory["Sopel-GifSearch"]["badgiflinks"]:
+                            tempresultnum += 1
+                            tempdict = dict()
+                            tempdict["returnnum"] = tempresultnum
+                            tempdict["returnurl"] = tempresult
+                            tempdict["gifapi"] = currentapi
+                            bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])].append(tempdict)
+
+        else:
+            verifygoodlinks = []
+            for gifresult in bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])]:
+                if gifresult["returnurl"] not in bot.memory["Sopel-GifSearch"]["badgiflinks"]:
+                    verifygoodlinks.append(gifresult)
+            bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])] = verifygoodlinks
+
+        if bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])] != []:
+            gifapiresults.extend(bot.memory["Sopel-GifSearch"]['cache'][currentapi][str(searchdict["searchquery"])])
+
+    if gifapiresults == []:
+        return {"error": "No Results were found for '" + searchdict["query"] + "' in the " + str(spicemanip.main(searchdict['gifsearch'], 'orlist')) + " api(s)"}
+
+    random.shuffle(gifapiresults)
+    random.shuffle(gifapiresults)
+    randombad = True
+    while randombad:
+        gifdict = spicemanip.main(gifapiresults, "random")
+
+        try:
+            gifpage = requests.get(gifdict["returnurl"], headers=None)
+        except Exception as e:
+            gifpage = None
+
+        if gifpage and not str(gifpage.status_code).startswith(tuple(["4", "5"])):
+            randombad = False
+        else:
+            bot.memory["botdict"]["tempvals"]["badgiflinks"].append(gifdict["returnurl"])
+            newlist = []
+            for tempdict in gifapiresults:
+                if tempdict["returnurl"] != gifdict["returnurl"]:
+                    newlist.append(tempdict)
+            gifapiresults = newlist
+
+    if gifapiresults == []:
+        return {"error": "No Results were found for '" + searchdict["query"] + "' in the " + str(spicemanip.main(searchdict['gifsearch'], 'orlist')) + " api(s)"}
+
+    # return dict
+    gifdict['error'] = None
+    return gifdict
 
 
 def read_directory_json_to_dict(directories, configtypename="Config File", stderrname=''):
