@@ -55,6 +55,8 @@ def setup(bot):
             apikey = eval("bot.config." + gif_api + ".apikey")
             if apikey:
                 valid_gif_api_dict[gif_api]["apikey"] = apikey
+            else:
+                valid_gif_api_dict[gif_api]["apikey"] = None
             bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
     if botevents_installed:
