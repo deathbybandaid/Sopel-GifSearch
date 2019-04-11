@@ -5,13 +5,14 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 from .gifsearch import *
 
 
-@module.commands('gifb')
-def gif_trigger(bot, trigger):
-    triggerargs = sopel_triggerargs(bot, trigger)
+@module.rule(global config_prefix)
+def gifapi_triggers(bot, trigger):
+    triggerargs, prefixcommand = sopel_triggerargs(bot, trigger)
+
     if triggerargs == []:
         return bot.osd("Please present a query to search.")
 
-    query = spicemanip.main(trigger.args[1], 0)
+    query = spicemanip.main(triggerargs, 0)
     searchapis = bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys()
     searchdict = {"query": query, "gifsearch": searchapis}
 

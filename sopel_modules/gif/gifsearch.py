@@ -45,9 +45,7 @@ def configure(config):
 
 def setup(bot):
     global config_prefix
-    stderr("[Sopel-GifSearch] " + str(config_prefix))
     config_prefix = bot.config.core.prefix
-    stderr("[Sopel-GifSearch] " + str(config_prefix))
     if "Sopel-GifSearch" not in bot.memory:
         stderr("[Sopel-GifSearch] Starting Setup Procedure")
         bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": [], 'valid_gif_api_dict': {}}
@@ -98,6 +96,11 @@ def sopel_triggerargs(bot, trigger, command_type='module_command'):
         triggerargs = spicemanip.main(triggerargs, '2+', 'list')
     elif command_type in ['nickname_command']:
         triggerargs = spicemanip.main(triggerargs, '3+', 'list')
+    elif command_type in ['prefix_command']:
+        triggerargs = spicemanip.main(triggerargs, '2+', 'list')
+        prefixcommand = spicemanip.main(triggerargs, 1).lower()[1:]
+        triggerargs = spicemanip.main(triggerargs, "2+", 'list')
+        return triggerargs, prefixcommand
 
     return triggerargs
 

@@ -11,7 +11,7 @@ def gif_trigger(bot, trigger):
     if triggerargs == []:
         return bot.osd("Please present a query to search.")
 
-    query = spicemanip.main(trigger.args[1], 0)
+    query = spicemanip.main(triggerargs, 0)
     searchapis = bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys()
     searchdict = {"query": query, "gifsearch": searchapis}
 
