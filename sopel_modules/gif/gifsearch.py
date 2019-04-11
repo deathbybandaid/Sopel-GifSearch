@@ -44,6 +44,7 @@ def configure(config):
 
 
 def setup(bot):
+    global config_prefix
     stderr("[Sopel-GifSearch] " + str(config_prefix))
     config_prefix = bot.config.core.prefix
     stderr("[Sopel-GifSearch] " + str(config_prefix))
