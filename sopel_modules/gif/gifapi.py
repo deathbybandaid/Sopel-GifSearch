@@ -7,12 +7,8 @@ from .gifsearch import *
 from sopel import module
 
 
-@module.rule(('(.*)'))
+@sopel.module.commands(('(.*)'))
 def gifapi_triggers(bot, trigger):
-    if not len(trigger.args) > 1:
-        return
-    embeddedrulematch = "^" + bot.config.core.prefix  + "(.*)"
-    '^\.|!(.*)'
 
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
 
