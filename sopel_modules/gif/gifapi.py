@@ -14,7 +14,7 @@ def setup(bot):
 
 @module.rule(config_prefix)
 def gifapi_triggers(bot, trigger):
-    triggerargs, prefixcommand = sopel_triggerargs(bot, trigger)
+    triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
 
     if triggerargs == []:
         return bot.osd("Please present a query to search.")
