@@ -8,12 +8,12 @@ config_prefix = '^\.(.*)'
 
 
 def setup(bot):
-    global config_prefix
-    config_prefix = bot.config.core.prefix
+    global config_prefix = str("^" + bot.config.core.prefix + "(.*)")
 
 
 @module.rule(config_prefix)
 def gifapi_triggers(bot, trigger):
+    bot.say(str(config_prefix))
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
 
     if prefixcommand not in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
