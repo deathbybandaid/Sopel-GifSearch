@@ -8,7 +8,8 @@ config_prefix = '^\.(.*)'
 
 
 def setup(bot):
-    global config_prefix = str("^" + bot.config.core.prefix + "(.*)")
+    global config_prefix
+    config_prefix = str("^" + bot.config.core.prefix + "(.*)")
 
 
 @module.rule(config_prefix)
