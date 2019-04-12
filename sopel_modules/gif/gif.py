@@ -4,6 +4,8 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 
 from .gifsearch import *
 
+import sopel_modules.osd
+
 
 @module.commands('gif')
 def gif_trigger(bot, trigger):

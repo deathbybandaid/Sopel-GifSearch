@@ -6,6 +6,8 @@ from .gifsearch import *
 
 from sopel import module
 
+import sopel_modules.osd
+
 
 @sopel.module.commands('(.*)')
 def gifapi_triggers(bot, trigger):
