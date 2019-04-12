@@ -1,1 +1,4 @@
 sopel>=6.0,<7
+fake_useragent>=0.1.11
+spicemanip>=0.1.3
+requests>=2.21.0
