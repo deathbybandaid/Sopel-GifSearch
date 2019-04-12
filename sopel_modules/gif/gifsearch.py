@@ -67,24 +67,20 @@ def setup(bot):
                 valid_gif_api_dict[gif_api]["apikey"] = None
             bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
-    if botevents_installed:
-        set_bot_event(bot, "gifsearch")
-
 
 @sopel.module.event('001')
 @sopel.module.rule('.*')
-def bot_startup_commandsquery_gif(bot, trigger):
+def bot_startup_integrations(bot, trigger):
 
-    if not botevents_installed:
-        return
+    if botevents_installed:
+        set_bot_event(bot, "gifsearch")
 
-    while not check_bot_events(bot, ["commandsquery"]):
-        pass
+    if commandsquery_installed:
 
-    for prefix_command in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
-        commandsquery_register(bot, "prefix_command", prefix_command)
+        for prefix_command in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
+            commandsquery_register(bot, "prefix_command", prefix_command)
 
-    stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['commandslist']["prefix_command"].keys())) + " " + "prefix_command" + " commands.")
+        stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['commandslist']["prefix_command"].keys())) + " " + "prefix_command" + " commands.")
 
 
 @module.commands('gif')
