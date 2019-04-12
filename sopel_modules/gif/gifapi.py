@@ -4,12 +4,13 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 
 from .gifsearch import *
 
-config_prefix = '^\.(.*)'
+import sys
+thismodule = sys.modules[__name__]
+thismodule.config_prefix = '^\.(.*)'
 
 
 def setup(bot):
-    global config_prefix
-    config_prefix = str("^" + bot.config.core.prefix + "(.*)")
+    thismodule.config_prefix = str("^" + bot.config.core.prefix + "(.*)")
 
 
 @module.rule(config_prefix)
