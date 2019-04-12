@@ -54,7 +54,7 @@ def configure(config):
     for gif_api in valid_gif_api_dict.keys():
         config.define_section(gif_api, GifAPISection, validate=False)
         gif_api_config = eval("config." + gif_api)
-        gif_api_config.configure_setting('apikey', 'GIF API Client ID')
+        gif_api_config.configure_setting('apikey', 'GIF API Client ID-'+ gif_api)
 
 
 def setup(bot):
