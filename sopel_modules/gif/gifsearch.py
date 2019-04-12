@@ -84,7 +84,7 @@ def bot_startup_commandsquery_gif(bot, trigger):
     for prefix_command in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
         commandsquery_register(bot, "prefix_command", prefix_command)
 
-    stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['commandslist']["prefix_command"].keys())) + " " + commandstype + " commands.")
+    stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['commandslist']["prefix_command"].keys())) + " " + "prefix_command" + " commands.")
 
 
 @module.commands('gif')
