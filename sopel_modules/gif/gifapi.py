@@ -16,6 +16,9 @@ def setup(bot):
 def gifapi_triggers(bot, trigger):
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
 
+    if prefixcommand not in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
+        return
+
     if triggerargs == []:
         return bot.osd("Please present a query to search.")
 

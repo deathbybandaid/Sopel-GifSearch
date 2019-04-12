@@ -87,6 +87,7 @@ def sopel_triggerargs(bot, trigger, command_type='module_command'):
     if len(trigger.args) > 1:
         triggerargs = spicemanip.main(trigger.args[1], 'create')
     triggerargs = spicemanip.main(triggerargs, 'create')
+    stderr(triggerargs)
 
     if command_type in ['module_command']:
         triggerargs = spicemanip.main(triggerargs, '2+', 'list')
