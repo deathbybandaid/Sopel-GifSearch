@@ -13,7 +13,7 @@ def setup(bot):
     thismodule.config_prefix = str("^" + bot.config.core.prefix + "(.*)")
 
 
-@module.rule(config_prefix)
+@module.rule(thismodule.config_prefix)
 def gifapi_triggers(bot, trigger):
     bot.say(str(config_prefix))
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
