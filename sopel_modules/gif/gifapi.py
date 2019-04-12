@@ -4,16 +4,10 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 
 from .gifsearch import *
 
-import sys
-thismodule = sys.modules[__name__]
-thismodule.config_prefix = '^\.(.*)'
+config_prefix = str("^" + bot.config.core.prefix + "(.*)")
 
 
-def setup(bot):
-    thismodule.config_prefix = str("^" + bot.config.core.prefix + "(.*)")
-
-
-@module.rule(thismodule.config_prefix)
+@module.rule(config_prefix)
 def gifapi_triggers(bot, trigger):
     bot.say(str(config_prefix))
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
