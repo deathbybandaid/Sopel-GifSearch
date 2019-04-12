@@ -7,7 +7,7 @@ from .gifsearch import *
 from sopel import module
 
 
-@sopel.module.commands(('(.*)'))
+@sopel.module.commands('(.*)')
 def gifapi_triggers(bot, trigger):
 
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
