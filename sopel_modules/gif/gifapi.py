@@ -4,10 +4,11 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 
 from .gifsearch import *
 
+from sopel import module
 
-@module.rule(config_prefix)
+
+@module.rule('^\.|!(.*)')
 def gifapi_triggers(bot, trigger):
-    bot.say(str(config_prefix))
     triggerargs, prefixcommand = sopel_triggerargs(bot, trigger, 'prefix_command')
 
     if prefixcommand not in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
@@ -17,7 +18,6 @@ def gifapi_triggers(bot, trigger):
         return bot.osd("Please present a query to search.")
 
     query = spicemanip.main(triggerargs, 0)
-    searchapis = bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys()
     searchdict = {"query": query, "gifsearch": prefixcommand}
 
     gifdict = getGif(bot, searchdict)

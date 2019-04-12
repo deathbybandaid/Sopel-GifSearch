@@ -25,8 +25,6 @@ import random
 ua = UserAgent()
 header = {'User-Agent': str(ua.chrome)}
 
-config_prefix = '^\.(.*)'
-
 
 class GifAPISection(StaticSection):
     apikey = ValidatedAttribute('apikey', default=None)
@@ -44,8 +42,6 @@ def configure(config):
 
 
 def setup(bot):
-    global config_prefix
-    config_prefix = str("^" + bot.config.core.prefix + "(.*)")
 
     if "Sopel-GifSearch" not in bot.memory:
         stderr("[Sopel-GifSearch] Starting Setup Procedure")
