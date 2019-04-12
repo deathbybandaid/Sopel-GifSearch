@@ -72,15 +72,15 @@ def setup(bot):
 @sopel.module.rule('.*')
 def bot_startup_integrations(bot, trigger):
 
-    if botevents_installed:
-        set_bot_event(bot, "gifsearch")
+    if botevents_installed and "Sopel-GifSearch" in bot.memory:
+        set_bot_event(bot, "Sopel-GifSearch")
 
     if commandsquery_installed:
 
         for prefix_command in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
             commandsquery_register(bot, "prefix_command", prefix_command)
 
-        stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['commandslist']["prefix_command"].keys())) + " " + "prefix_command" + " commands.")
+        stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['Sopel-CommandsQuery']["prefix_command"].keys())) + " " + "prefix_command" + " commands.")
 
 
 @module.commands('gif')
