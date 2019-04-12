@@ -11,3 +11,10 @@ git clone https://github.com/deathbybandaid/Sopel-GifSearch.git
 cd Sopel-GifSearch
 pip3 install .
 ````
+
+# Usage
+
+````
+<~deathbybandaid> .gif test
+<Sopel> Gfycat Result (.gif test #44): https://thumbs.gfycat.com/SoupyIllfatedAmericanbobtail-size_restricted.gif
+````

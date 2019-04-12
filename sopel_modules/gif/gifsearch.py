@@ -11,6 +11,13 @@ try:
     botevents_installed = True
 except ImportError:
     botevents_installed = False
+
+try:
+    from sopel_modules.commandsquery.commandsquery import *
+    commandsquery_installed = True
+except ImportError:
+    commandsquery_installed = False
+
 import spicemanip
 
 import os
@@ -62,6 +69,22 @@ def setup(bot):
 
     if botevents_installed:
         set_bot_event(bot, "gifsearch")
+
+
+@sopel.module.event('001')
+@sopel.module.rule('.*')
+def bot_startup_commandsquery_gif(bot, trigger):
+
+    if not botevents_installed:
+        return
+
+    while not check_bot_events(bot, ["commandsquery"]):
+        pass
+
+    for prefix_command in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
+        commandsquery_register(bot, "prefix_command", prefix_command)
+
+    stderr("[Sopel-CommandsQuery] Found " + str(len(bot.memory['commandslist']["prefix_command"].keys())) + " " + commandstype + " commands.")
 
 
 @module.commands('gif')
