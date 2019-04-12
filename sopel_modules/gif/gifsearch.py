@@ -33,6 +33,11 @@ ua = UserAgent()
 header = {'User-Agent': str(ua.chrome)}
 
 
+class GifAPIMainSection(StaticSection):
+    extra = ValidatedAttribute('extra', default=None)
+    nsfw = ValidatedAttribute('nsfw', default=False)
+
+
 class GifAPISection(StaticSection):
     apikey = ValidatedAttribute('apikey', default=None)
 
@@ -41,6 +46,10 @@ def configure(config):
     moduledir = os.path.dirname(os.path.abspath(__file__))
     api_dir = os.path.join(moduledir, 'gifapi')
     valid_gif_api_dict = read_directory_json_to_dict([api_dir], "Gif API", "[Sopel-GifSearch] ")
+
+    config.define_section("SopelGifSearch", GifAPIMainSection, validate=False)
+    config.SopelGifSearch.configure_setting('extra', 'Sopel-GifSearch API Extra directory')
+    config.SopelGifSearch.configure_setting('nsfw', 'Sopel-GifSearch API nsfw content')
 
     for gif_api in valid_gif_api_dict.keys():
         config.define_section(gif_api, GifAPISection, validate=False)
@@ -54,9 +63,17 @@ def setup(bot):
         stderr("[Sopel-GifSearch] Starting Setup Procedure")
         bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": [], 'valid_gif_api_dict': {}}
 
+        dir_to_scan = []
+
         moduledir = os.path.dirname(os.path.abspath(__file__))
         api_dir = os.path.join(moduledir, 'gifapi')
-        valid_gif_api_dict = read_directory_json_to_dict([api_dir], "Gif API", "[Sopel-GifSearch] ")
+        dir_to_scan.append(api_dir)
+
+        bot.config.define_section("SopelGifSearch", GifAPIMainSection, validate=False)
+        if bot.config.SopelGifSearch.extra:
+            dir_to_scan.append(bot.config.SopelGifSearch.extra)
+
+        valid_gif_api_dict = read_directory_json_to_dict(dir_to_scan, "Gif API", "[Sopel-GifSearch] ")
 
         for gif_api in valid_gif_api_dict.keys():
             bot.config.define_section(gif_api, GifAPISection, validate=False)
@@ -68,8 +85,8 @@ def setup(bot):
             bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
 
-@sopel.module.event('001')
-@sopel.module.rule('.*')
+@module.event('001')
+@module.rule('.*')
 def bot_startup_integrations(bot, trigger):
 
     if botevents_installed and "Sopel-GifSearch" in bot.memory:
@@ -131,6 +148,9 @@ def getGif(bot, searchdict):
                     "searchlimit": 'default',
                     "nsfw": False,
                     }
+
+    if bot.config.SopelGifSearch.nsfw:
+        query_defaults["nsfw"] = True
 
     # set defaults if they don't exist
     for key in query_defaults:
