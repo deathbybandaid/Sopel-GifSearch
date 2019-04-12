@@ -24,7 +24,7 @@ def gifapi_triggers(bot, trigger):
 
     query = spicemanip.main(triggerargs, 0)
     searchapis = bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys()
-    searchdict = {"query": query, "gifsearch": searchapis}
+    searchdict = {"query": query, "gifsearch": prefixcommand}
 
     gifdict = getGif(bot, searchdict)
 
