@@ -60,35 +60,35 @@ def configure(config):
 
 def setup(bot):
 
+    stderr("[Sopel-GifSearch] Starting Setup Procedure")
+
     threading.Thread(target=setup_thread, args=(bot,)).start()
 
 
 def setup_thread(bot):
 
-    if "Sopel-GifSearch" not in bot.memory:
-        stderr("[Sopel-GifSearch] Starting Setup Procedure")
-        bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": [], 'valid_gif_api_dict': {}}
+    bot.memory["Sopel-GifSearch"] = {"cache": {}, "badgiflinks": [], 'valid_gif_api_dict': {}}
 
-        dir_to_scan = []
+    dir_to_scan = []
 
-        moduledir = os.path.dirname(os.path.abspath(__file__))
-        api_dir = os.path.join(moduledir, 'gifapi')
-        dir_to_scan.append(api_dir)
+    moduledir = os.path.dirname(os.path.abspath(__file__))
+    api_dir = os.path.join(moduledir, 'gifapi')
+    dir_to_scan.append(api_dir)
 
-        bot.config.define_section("SopelGifSearch", GifAPIMainSection, validate=False)
-        if bot.config.SopelGifSearch.extra:
-            dir_to_scan.append(bot.config.SopelGifSearch.extra)
+    bot.config.define_section("SopelGifSearch", GifAPIMainSection, validate=False)
+    if bot.config.SopelGifSearch.extra:
+        dir_to_scan.append(bot.config.SopelGifSearch.extra)
 
-        valid_gif_api_dict = read_directory_json_to_dict(dir_to_scan, "Gif API", "[Sopel-GifSearch] ")
+    valid_gif_api_dict = read_directory_json_to_dict(dir_to_scan, "Gif API", "[Sopel-GifSearch] ")
 
-        for gif_api in valid_gif_api_dict.keys():
-            bot.config.define_section(gif_api, GifAPISection, validate=False)
-            apikey = eval("bot.config." + gif_api + ".apikey")
-            if apikey:
-                valid_gif_api_dict[gif_api]["apikey"] = apikey
-            else:
-                valid_gif_api_dict[gif_api]["apikey"] = None
-            bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
+    for gif_api in valid_gif_api_dict.keys():
+        bot.config.define_section(gif_api, GifAPISection, validate=False)
+        apikey = eval("bot.config." + gif_api + ".apikey")
+        if apikey:
+            valid_gif_api_dict[gif_api]["apikey"] = apikey
+        else:
+            valid_gif_api_dict[gif_api]["apikey"] = None
+        bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
     if botevents_installed:
         set_bot_event(bot, "Sopel-GifSearch")
