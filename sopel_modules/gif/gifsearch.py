@@ -27,6 +27,7 @@ import requests
 import json
 from fake_useragent import UserAgent
 import random
+import threading
 
 # user agent and header
 ua = UserAgent()
@@ -54,10 +55,15 @@ def configure(config):
     for gif_api in valid_gif_api_dict.keys():
         config.define_section(gif_api, GifAPISection, validate=False)
         gif_api_config = eval("config." + gif_api)
-        gif_api_config.configure_setting('apikey', 'GIF API Client ID-'+ gif_api)
+        gif_api_config.configure_setting('apikey', 'GIF API Client ID-' + gif_api)
 
 
 def setup(bot):
+
+    threading.Thread(target=setup_thread, args=(bot,)).start()
+
+
+def setup_thread(bot):
 
     if "Sopel-GifSearch" not in bot.memory:
         stderr("[Sopel-GifSearch] Starting Setup Procedure")
@@ -84,15 +90,14 @@ def setup(bot):
                 valid_gif_api_dict[gif_api]["apikey"] = None
             bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
-
-@module.event('001')
-@module.rule('.*')
-def bot_startup_integrations(bot, trigger):
-
-    if botevents_installed and "Sopel-GifSearch" in bot.memory:
+    if botevents_installed:
+        while "Sopel-BotEvents" not in bot.memory:
+            pass
         set_bot_event(bot, "Sopel-GifSearch")
 
     if commandsquery_installed:
+        while 'Sopel-CommandsQuery' not in bot.memory:
+            pass
 
         for prefix_command in bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'].keys():
             commandsquery_register(bot, "prefix_command", prefix_command)

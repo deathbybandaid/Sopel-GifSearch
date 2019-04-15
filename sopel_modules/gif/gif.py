@@ -9,6 +9,10 @@ import sopel_modules.osd
 
 @module.commands('gif')
 def gif_trigger(bot, trigger):
+
+    while "Sopel-GifSearch" not in bot.memory:
+        pass
+
     triggerargs = sopel_triggerargs(bot, trigger)
     if triggerargs == []:
         return bot.osd("Please present a query to search.")
