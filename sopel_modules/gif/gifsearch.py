@@ -91,8 +91,6 @@ def setup_thread(bot):
             bot.memory["Sopel-GifSearch"]['valid_gif_api_dict'][gif_api] = valid_gif_api_dict[gif_api]
 
     if botevents_installed:
-        while "Sopel-BotEvents" not in bot.memory:
-            pass
         set_bot_event(bot, "Sopel-GifSearch")
 
     if commandsquery_installed:
