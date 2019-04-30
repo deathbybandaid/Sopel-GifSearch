@@ -6,6 +6,8 @@ from sopel import module
 from sopel.tools import stderr
 from sopel.config.types import StaticSection, ValidatedAttribute
 
+import sopel_modules.osd
+
 try:
     from sopel_modules.botevents.botevents import *
     botevents_installed = True
